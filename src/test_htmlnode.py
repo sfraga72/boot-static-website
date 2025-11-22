@@ -37,3 +37,8 @@ class TestHtmlNode(unittest.TestCase):
         node = LeafNode("p", None)
         with self.assertRaises(ValueError):
             node.to_html()
+    
+    def test_leaf_repr(self):
+        node = LeafNode("a", "Link", props={"href": "http://example.com"})
+        expected_repr = "LeafNode(a, Link, {'href': 'http://example.com'})"
+        self.assertEqual(repr(node), expected_repr)
