@@ -39,6 +39,10 @@ class TestTextNode(unittest.TestCase):
         expected_repr = "TextNode(Sample text, code, http://example.com)"
         self.assertEqual(repr(node), expected_repr)
 
+    def test_repr_no_url(self):
+        node = TextNode("Sample text", TextType.ITALIC)
+        expected_repr = "TextNode(Sample text, italic, None)"
+        self.assertEqual(repr(node), expected_repr)
 
 if __name__ == "__main__":
     unittest.main()
