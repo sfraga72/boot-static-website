@@ -6,6 +6,7 @@ from inline_markdown import (
     extract_markdown_images,
     split_nodes_image,
     split_nodes_link,
+    text_to_textnodes,
 )
 from textnode import TextNode, TextType
 
@@ -310,6 +311,50 @@ class TestSplitNodesDelimiter(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             split_nodes_link([node])
         self.assertEqual(str(context.exception), "invalid markdown, link section not closed")
+
+    def test_text_to_textnodes(self):
+        nodes = text_to_textnodes(
+            "This is **text** with an _italic_ word and a `code block` and an ![image](https://i.imgur.com/zjjcJKZ.png) and a [link](https://boot.dev)"
+        )
+        self.assertListEqual(
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("text", TextType.BOLD),
+                TextNode(" with an ", TextType.TEXT),
+                TextNode("italic", TextType.ITALIC),
+                TextNode(" word and a ", TextType.TEXT),
+                TextNode("code block", TextType.CODE),
+                TextNode(" and an ", TextType.TEXT),
+                TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode(" and a ", TextType.TEXT),
+                TextNode("link", TextType.LINK, "https://boot.dev"),
+            ],
+            nodes,
+        )
+    
+    def test_text_to_textnodes_no_formatting(self):
+        nodes = text_to_textnodes("This is plain text without any formatting.")
+        self.assertListEqual(
+            [TextNode("This is plain text without any formatting.", TextType.TEXT)],
+            nodes,
+        )
+    
+    def test_text_to_textnodes_only_formatting(self):
+        nodes = text_to_textnodes("**Bold** _Italic_ `Code` ![Image](https://i.imgur.com/zjjcJKZ.png) [Link](https://boot.dev)")
+        self.assertListEqual(
+            [
+                TextNode("Bold", TextType.BOLD),
+                TextNode(" ", TextType.TEXT),
+                TextNode("Italic", TextType.ITALIC),
+                TextNode(" ", TextType.TEXT),
+                TextNode("Code", TextType.CODE),
+                TextNode(" ", TextType.TEXT),
+                TextNode("Image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode(" ", TextType.TEXT),
+                TextNode("Link", TextType.LINK, "https://boot.dev"),
+            ],
+            nodes,
+        )
 
 if __name__ == "__main__":
     unittest.main()
